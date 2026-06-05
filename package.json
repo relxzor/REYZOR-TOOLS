@@ -1,9 +1,0 @@
-{
-  "name": "network-performance-lab",
-  "version": "1.0.0",
-  "description": "HTTP load testing and throughput analysis tool for authorized performance testing",
-  "main": "core-module.js",
-  "keywords": ["performance", "load-testing", "throughput", "analysis", "benchmark"],
-  "author": "devlab",
-  "license": "MIT"
-}
