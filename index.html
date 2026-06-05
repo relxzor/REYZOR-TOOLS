@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Network Performance Lab | Load Testing Suite</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background: #0a0a0f;
+            font-family: 'Courier New', monospace;
+            min-height: 100vh;
+            color: #00d4ff;
+            overflow-x: hidden;
+        }
+        canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; opacity: 0.05; }
+        .container { position: relative; z-index: 1; max-width: 1400px; margin: 0 auto; padding: 20px; }
+        .header, .control-panel, .stats-panel, .console {
+            background: rgba(10, 15, 25, 0.85);
+            backdrop-filter: blur(10px);
+            border: 1px solid #2a2a3a;
+            border-radius: 12px;
+            margin-bottom: 20px;
+        }
+        .header { padding: 20px 30px; }
+        .glitch { font-size: 28px; font-weight: 800; color: #00d4ff; }
+        .sub { color: #6c757d; font-size: 12px; margin-top: 5px; }
+        .control-panel { padding: 25px; }
+        .input-group { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-bottom: 25px; }
+        .input-field { display: flex; flex-direction: column; gap: 8px; }
+        .input-field label { font-size: 12px; color: #00d4ff; }
+        .input-field input, .input-field select {
+            background: #0a0a0f; border: 1px solid #2a2a3a; color: #fff;
+            padding: 12px 15px; border-radius: 8px; font-family: monospace;
+        }
+        .input-field input:focus { outline: none; border-color: #00d4ff; }
+        .button-grid { display: flex; gap: 15px; flex-wrap: wrap; margin: 20px 0; }
+        .btn { padding: 12px 25px; border: none; border-radius: 8px; font-family: monospace; font-weight: 600; cursor: pointer; transition: all 0.3s; }
+        .btn-primary { background: #00d4ff; color: #0a0a0f; }
+        .btn-danger { background: #ff3366; color: #fff; }
+        .btn-secondary { background: #2a2a3a; color: #fff; }
+        .stats-panel { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 15px; padding: 20px; }
+        .stat-card { text-align: center; }
+        .stat-value { font-size: 28px; font-weight: 800; color: #00d4ff; }
+        .stat-label { font-size: 11px; color: #6c757d; }
+        .console { height: 250px; overflow-y: auto; padding: 15px; font-size: 11px; }
+        .log-line { padding: 4px 0; border-bottom: 1px solid #1a1a2a; color: #8a8d98; }
+        .log-success { color: #00d4ff; }
+        .log-error { color: #ff3366; }
+        .footer { text-align: center; padding: 20px; font-size: 11px; color: #555; border-top: 1px solid #2a2a3a; margin-top: 25px; }
+        @media (max-width: 768px) { .container { padding: 10px; } .glitch { font-size: 18px; } .input-group { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+<canvas id="bgCanvas"></canvas>
+<div class="container">
+    <div class="header">
+        <div class="glitch">NETWORK PERFORMANCE LAB v4.0</div>
+        <div class="sub">> HTTP Throughput Analyzer | Load Testing Suite | Authorized Use Only</div>
+    </div>
+    <div class="control-panel">
+        <div class="input-group">
+            <div class="input-field"><label>ENDPOINT URL</label><input type="text" id="endpointUrl" placeholder="https://target.com/api"></div>
+            <div class="input-field"><label>REQUEST TYPE</label><select id="reqType"><option value="GET">GET</option><option value="POST">POST</option><option value="HEAD">HEAD</option></select></div>
+            <div class="input-field"><label>PORT</label><input type="number" id="portNumber" placeholder="80" value="80"></div>
+            <div class="input-field"><label>CONCURRENCY (10-500)</label><input type="number" id="concurrencyLevel" min="10" max="500" value="100"></div>
+            <div class="input-field"><label>DURATION (sec)</label><input type="number" id="testDuration" min="5" max="3600" value="60"></div>
+            <div class="input-field"><label>INTERVAL (ms)</label><input type="number" id="reqInterval" min="0" max="100" value="1"></div>
+        </div>
+        <div class="button-grid">
+            <button class="btn btn-primary" id="runBtn">▶ START TEST</button>
+            <button class="btn btn-danger" id="stopBtn">⏹️ STOP TEST</button>
+            <button class="btn btn-secondary" id="resetBtn">🔄 RESET</button>
+        </div>
+    </div>
+    <div class="stats-panel">
+        <div class="stat-card"><div class="stat-value" id="totalReqCount">0</div><div class="stat-label">TOTAL REQUESTS</div></div>
+        <div class="stat-card"><div class="stat-value" id="reqPerSec">0</div><div class="stat-label">REQUESTS/SEC</div></div>
+        <div class="stat-card"><div class="stat-value" id="successReqCount">0</div><div class="stat-label">SUCCESS</div></div>
+        <div class="stat-card"><div class="stat-value" id="errorReqCount">0</div><div class="stat-label">ERRORS</div></div>
+        <div class="stat-card"><div class="stat-value" id="activeWorkerCount">0</div><div class="stat-label">ACTIVE WORKERS</div></div>
+        <div class="stat-card"><div class="stat-value" id="timeLeft">0</div><div class="stat-label">TIME LEFT (s)</div></div>
+    </div>
+    <div class="console" id="consoleLog"><div class="log-line log-success">[LAB] System initialized</div><div class="log-line log-success">[LAB] Ready for load testing</div></div>
+    <div class="footer"><p>Network Performance Lab // Authorized Load Testing Tool</p></div>
+</div>
+<script src="core-module.js"></script>
+</body>
+</html>
